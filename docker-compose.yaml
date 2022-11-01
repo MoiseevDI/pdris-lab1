@@ -1,0 +1,45 @@
+version: "3.7"
+
+services:
+    db:
+        build: postgres_db
+        healthcheck:
+          test: [ "CMD", "pg_isready", "-q", "-d", "testdb", "-U", "postgres" ]
+          timeout: 45s
+          interval: 5s
+          retries: 10
+        networks:
+          - app-network
+        volumes:
+          - dbdata:/var/lib/postgresql/data
+
+
+    
+    web:
+        build: frontend
+        ports:
+          - 80:80
+        depends_on:
+          - api
+        networks:
+          - app-network
+
+
+    api:
+        build: backend
+        environment:
+          - PORT=80
+          - DB_HOST=db
+        depends_on:
+          db:
+            condition: service_healthy
+        networks:
+          - app-network
+
+volumes:
+  dbdata:
+
+networks:
+  app-network:
+    driver: bridge
+    
