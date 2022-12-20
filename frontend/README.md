@@ -1,1 +1,0 @@
-React frontend for PDRIS lab 1
